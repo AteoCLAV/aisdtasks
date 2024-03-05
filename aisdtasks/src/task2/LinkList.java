@@ -7,18 +7,20 @@ public class LinkList<T> implements Iterable<T> {
     private class LinkListItem<T> {
         public T value;
         public LinkListItem<T> next;
+        public LinkListItem<T> prev;
 
-        public LinkListItem(T value, LinkListItem<T> next) {
+        public LinkListItem(T value, LinkListItem<T> next, LinkListItem<T> prev) {
             this.value = value;
             this.next = next;
+            this.prev = prev;
         }
 
         public LinkListItem(T value) {
-            this(value, null);
+            this(value, null, null);
         }
 
         public LinkListItem() {
-            this(null, null);
+            this(null, null, null);
         }
     }
 
@@ -60,7 +62,7 @@ public class LinkList<T> implements Iterable<T> {
     }
 
     public void addFirst(T value) {
-        head = new LinkListItem<>(value, head);
+        head = new LinkListItem<>(value, head, null);
         if (tail == null) {
             tail = head;
         }
@@ -69,9 +71,9 @@ public class LinkList<T> implements Iterable<T> {
 
     public void addLast(T value) {
         if (tail == null) {
-            head = tail = new LinkListItem<>(value);
+            head = tail = new LinkListItem<>(value, null, null);
         } else {
-            tail = tail.next = new LinkListItem<>(value);
+            tail = tail.next = new LinkListItem<>(value, null, tail);
         }
         count++;
     }
@@ -84,7 +86,7 @@ public class LinkList<T> implements Iterable<T> {
             addFirst(value);
         } else {
             LinkListItem<T> prev = getItem(index - 1);
-            prev.next = new LinkListItem<>(value, prev.next);
+            prev.next = new LinkListItem<>(value, prev.next, prev);
             if (prev.next.next == null) {
                 tail = prev.next;
             }
@@ -130,24 +132,30 @@ public class LinkList<T> implements Iterable<T> {
         }
     }
     public LinkList<T> removeDuplicates() {
-        LinkListItem<T> current = head;
-        LinkList newList = new LinkList();
+        LinkListItem<T> current = tail;
+        LinkListItem<T> prev = current.prev;
         while (current != null) {
-            LinkListItem<T> nextValue = current.next;
-            if (!newList.contains(nextValue)) {
-                newList.addLast(nextValue);
+            if (this.contains(current)) {
+               current.prev = current.next;
+               prev.next = current;
             }
-            current = current.next;
+            if (current.prev == null) {
+                System.out.println();
+            }
+                current = prev;
+                if (prev != null) {
+                    prev = prev.prev;
+                }
         }
-        return newList;
+        return this;
     }
     public boolean contains(LinkListItem<T> value) {
-        LinkListItem<T> current = head;
+        LinkListItem<T> current =tail;
         while (current != null) {
-            if (current.value.equals(value)) {
+            if (current.value.equals(value.value) && current != value) {
                 return true;
             }
-            current = current.next;
+            current = current.prev;
         }
         return false;
     }
